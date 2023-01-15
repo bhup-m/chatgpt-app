@@ -1,4 +1,4 @@
-import { useState,useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import send from './assets/send.png'
 import user from './assets/user.png'
 import bot from './assets/bot.png'
@@ -10,78 +10,80 @@ function App() {
   const [input, setInput] = useState("");
   const [posts, setPosts] = useState([]);
 
-  useEffect(()=>{
-    document.querySelector('.layout').scrollTop = document.querySelector('.layout').scrollHeight  
-  },[posts])
+  useEffect(() => {
+    document.querySelector('.layout').scrollTop = document.querySelector('.layout').scrollHeight
+  }, [posts])
 
-  
+
 
   const fetchBotResponse = async () => {
     const { data } = await axios.post(
-        "http://localhost:4000",
-        { input },
-        {
-            headers: {
-                "Content-Type": "application/json",
-            },
-        }
+      "https://bottalk-ai.onrender.com",
+      { input },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
     return data;
-};
+  };
 
-  const onSubmit = ()=>{
-    if(input.trim() ==='') return;
-    updatePost(input);
-    updatePost("loading",false,true);
-    setInput("")
-    fetchBotResponse().then((res)=>{
-      console.log(res);
-      updatePost(res.bot.trim(),true);
-    });
-  }
 
-  const autoTypingBotResponse = (text)=>{
+  const autoTypingBotResponse = (text) => {
     let index = 0;
-    let interval = setInterval(()=>{
-      if(index<text.length){
-        setPosts((prevState)=>{
-          let lastItem =prevState.pop();
-          if(lastItem.type !== "bot"){
+    let interval = setInterval(() => {
+      if (index < text.length) {
+        setPosts((prevState) => {
+          let lastItem = prevState.pop();
+          if (lastItem.type !== "bot") {
             prevState.push({
-              type:"bot",
-              post:text.charAt(index-1)
+              type: "bot",
+              post: text.charAt(index - 1)
             })
-          }else{
+          } else {
             prevState.push({
-              type:"bot",
-              post: lastItem.post + text.charAt(index-1)
+              type: "bot",
+              post: lastItem.post + text.charAt(index - 1)
             })
           }
           return [...prevState];
         })
         index++
-      }else{
+      } else {
         clearInterval(interval);
       }
-    },50)
+    }, 50)
   }
 
-  const updatePost = (post,isBot,isLoading)=>{
-    if(isBot){
+  const onSubmit = () => {
+    if (input.trim() === '') return;
+    updatePost(input);
+    updatePost("loading", false, true);
+    setInput("")
+    fetchBotResponse().then((res) => {
+      console.log(res);
+      updatePost(res.bot.trim(), true);
+    });
+  }
+
+
+  const updatePost = (post, isBot, isLoading) => {
+    if (isBot) {
       autoTypingBotResponse(post)
-    }else{
-      setPosts(prevState=>{
-        return[
+    } else {
+      setPosts(prevState => {
+        return [
           ...prevState,
-          {type:isLoading?"loading":"",post}
+          { type: isLoading ? "loading" : "", post }
         ]
       })
     }
-    
+
   }
 
-  const onKeyUp=(e)=>{
-    if(e.key==='enter' || e.which === 13){
+  const onKeyUp = (e) => {
+    if (e.key === 'enter' || e.which === 13) {
       onSubmit();
     }
   }
@@ -106,6 +108,7 @@ function App() {
         <div className='send-button' onClick={onSubmit}>
           <img src={send} />
         </div>
+        <h5 className='watermark'>Made By Bhupendra Mali</h5>
       </footer>
     </main>
   )
